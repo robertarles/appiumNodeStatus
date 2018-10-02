@@ -1,0 +1,22 @@
+{
+  "name": "appiumnodestatus",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "bin": {
+    "appiumNodeStatus": "./index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Robert Arles",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^10.11.3",
+    "typescript": "^3.1.1"
+  },
+  "dependencies": {
+    "chalk": "^2.4.1",
+    "commander": "^2.18.0"
+  }
+}
