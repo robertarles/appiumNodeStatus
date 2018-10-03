@@ -13,18 +13,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const child = __importStar(require("child_process"));
 const commander_1 = __importDefault(require("commander"));
-let chalk = require('chalk');
+const chalk_1 = __importDefault(require("chalk"));
+// command line options
 commander_1.default
     .option('--json', 'get json output')
     .parse(process.argv);
+// configuration, what do we want to scan?
 let buildmacList = [
     { hostName: 'buildmac11', hostIp: '10.104.97.48', stats: {} },
     { hostName: 'buildmac13', hostIp: '10.104.97.60', stats: {} },
     { hostName: 'buildmac14', hostIp: '10.104.97.43', stats: {} },
     { hostName: 'buildmac15', hostIp: '10.104.97.59', stats: {} }
 ];
+// test results array of hosts scanned
 let hostResults = [];
-let processInfoResponse = chalk.underline(`\n${padRight('HOST', 15)}${padRight('Appium', 15)}${padRight('%CPU', 10)}${padRight('%MEM', 10)}${padRight('Disk Free', 10)}\n\n`);
+let processInfoResponse = chalk_1.default.underline(`\n${padRight('HOST', 15)}${padRight('Appium', 15)}${padRight('%CPU', 10)}${padRight('%MEM', 10)}${padRight('Disk Free', 10)}\n\n`);
 for (let host of buildmacList) {
     // get the 'df' disk free result, grep -v to filter out the header line
     let driveSpaceResponse = child.execSync(`ssh -T buildmac@${host.hostIp} "df -h / | grep -v Filesystem"`).toString().split(/\s+/);
@@ -44,11 +47,11 @@ for (let host of buildmacList) {
             // save targetOs for regular output, and targetOsColor (padded before color chars added, then color set for console display)
             if (row.toLowerCase().indexOf('android') >= 0) {
                 targetOs = 'android';
-                targetOsColor = chalk.green(padRight(targetOs, 15));
+                targetOsColor = chalk_1.default.green(padRight(targetOs, 15));
             }
             else if (row.toLowerCase().indexOf('mac') >= 0) {
                 targetOs = 'ios';
-                targetOsColor = chalk.yellow(padRight(targetOs, 15));
+                targetOsColor = chalk_1.default.yellow(padRight(targetOs, 15));
             }
             else {
                 // skip the header row

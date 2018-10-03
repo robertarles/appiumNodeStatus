@@ -1,18 +1,21 @@
 #!/usr/bin/env node
 import * as child from 'child_process';
 import commander from 'commander';
-let chalk = require('chalk');
+import chalk from 'chalk';
 
+// command line options
 commander
     .option('--json', 'get json output')
     .parse(process.argv);
 
+// define the host objects
 interface Host {
     hostName: string,
     hostIp: string,
     stats: any
 }
 
+// configuration, what do we want to scan?
 let buildmacList: Array<Host> = [
     { hostName: 'buildmac11', hostIp: '10.104.97.48', stats: {} },
     { hostName: 'buildmac13', hostIp: '10.104.97.60', stats: {} },
@@ -20,6 +23,7 @@ let buildmacList: Array<Host> = [
     { hostName: 'buildmac15', hostIp: '10.104.97.59', stats: {} }
 ];
 
+// test results array of hosts scanned
 let hostResults: Array<Host> = [];
 
 let processInfoResponse: string = chalk.underline(`\n${padRight('HOST', 15)}${padRight('Appium', 15)}${padRight('%CPU', 10)}${padRight('%MEM', 10)}${padRight('Disk Free', 10)}\n\n`);
