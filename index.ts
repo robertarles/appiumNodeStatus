@@ -39,11 +39,15 @@ for (let host of buildmacList) {
             // if there's nothing here to parse, move on to the next host
             if (rowArr.length < 2) { break };
 
-            let targetOs: string = 'TargetOS';
+            let targetOs: string = '';
+            let targetOsColor: string = '';
+            // save targetOs for regular output, and targetOsColor (padded before color chars added, then color set for console display)
             if (row.toLowerCase().indexOf('android') >= 0) {
-                targetOs = chalk.green('android');
+                targetOs = 'android';
+                targetOsColor = chalk.green(padRight(targetOs, 15));
             } else if (row.toLowerCase().indexOf('mac') >= 0) {
-                targetOs = chalk.yellow('ios');
+                targetOs = 'ios';
+                targetOsColor = chalk.yellow(padRight(targetOs, 15));
             } else {
                 // skip the header row
                 continue;
@@ -51,7 +55,7 @@ for (let host of buildmacList) {
             host.stats = { cpu: rowArr[0], mem: rowArr[1], appium: targetOs, diskFree: driveSpaceResponse[3] };
             hostResults.push(host);
 
-            processInfoResponse += `${padRight(host.hostName, 15)}${padRight(host.stats.appium, 15)}${padRight(host.stats.cpu + '%', 10)}${padRight(host.stats.mem + '%', 10)}${padRight(host.stats.diskFree, 10)}\n`;
+            processInfoResponse += `${padRight(host.hostName, 15)}${targetOsColor}${padRight(host.stats.cpu + '%', 10)}${padRight(host.stats.mem + '%', 10)}${padRight(host.stats.diskFree, 10)}\n`;
         }
     } catch (e) {
         console.log(e.message);
@@ -67,7 +71,9 @@ if (commander.json) {
 }
 
 function padRight(text: string, width: number, pad: string = ' '): string {
-    let paddedString = '';
+    if (text.length > width) {
+        return text;
+    }
     let padding = pad.repeat(width - text.length);
     return text + padding;
 }

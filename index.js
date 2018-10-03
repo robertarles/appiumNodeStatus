@@ -39,12 +39,16 @@ for (let host of buildmacList) {
                 break;
             }
             ;
-            let targetOs = 'TargetOS';
+            let targetOs = '';
+            let targetOsColor = '';
+            // save targetOs for regular output, and targetOsColor (padded before color chars added, then color set for console display)
             if (row.toLowerCase().indexOf('android') >= 0) {
-                targetOs = chalk.green('android');
+                targetOs = 'android';
+                targetOsColor = chalk.green(padRight(targetOs, 15));
             }
             else if (row.toLowerCase().indexOf('mac') >= 0) {
-                targetOs = chalk.yellow('ios');
+                targetOs = 'ios';
+                targetOsColor = chalk.yellow(padRight(targetOs, 15));
             }
             else {
                 // skip the header row
@@ -52,7 +56,7 @@ for (let host of buildmacList) {
             }
             host.stats = { cpu: rowArr[0], mem: rowArr[1], appium: targetOs, diskFree: driveSpaceResponse[3] };
             hostResults.push(host);
-            processInfoResponse += `${padRight(host.hostName, 15)}${padRight(host.stats.appium, 15)}${padRight(host.stats.cpu + '%', 10)}${padRight(host.stats.mem + '%', 10)}${padRight(host.stats.diskFree, 10)}\n`;
+            processInfoResponse += `${padRight(host.hostName, 15)}${targetOsColor}${padRight(host.stats.cpu + '%', 10)}${padRight(host.stats.mem + '%', 10)}${padRight(host.stats.diskFree, 10)}\n`;
         }
     }
     catch (e) {
@@ -67,7 +71,9 @@ else {
     console.log(processInfoResponse);
 }
 function padRight(text, width, pad = ' ') {
-    let paddedString = '';
+    if (text.length > width) {
+        return text;
+    }
     let padding = pad.repeat(width - text.length);
     return text + padding;
 }
