@@ -29,7 +29,9 @@ let hostResults: Array<Host> = [];
 
 let processInfoResponse: string = chalk.underline(`\n${padRight('HOST', 15)}${padRight('Appium', 15)}${padRight('%CPU', 10)}${padRight('%MEM', 10)}${padRight('Disk Free', 10)}\n\n`);
 
-console.log('Checking Hosts...');
+if (!commander.json) {
+    console.log('Checking Hosts...');
+}
 
 for (let host of buildmacList) {
     // get the 'df' disk free result, grep -v to filter out the header line

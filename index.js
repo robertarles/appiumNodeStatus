@@ -28,7 +28,9 @@ let buildmacList = [
 // test results array of hosts scanned
 let hostResults = [];
 let processInfoResponse = chalk_1.default.underline(`\n${padRight('HOST', 15)}${padRight('Appium', 15)}${padRight('%CPU', 10)}${padRight('%MEM', 10)}${padRight('Disk Free', 10)}\n\n`);
-console.log('Checking Hosts...');
+if (!commander_1.default.json) {
+    console.log('Checking Hosts...');
+}
 for (let host of buildmacList) {
     // get the 'df' disk free result, grep -v to filter out the header line
     let driveSpaceResponse = child.execSync(`ssh -T buildmac@${host.hostIp} "df -h / | grep -v Filesystem"`).toString().split(/\s+/);
