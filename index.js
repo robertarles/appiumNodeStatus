@@ -11,35 +11,35 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var child = __importStar(require("child_process"));
-var commander_1 = __importDefault(require("commander"));
-var chalk = require('chalk');
+const child = __importStar(require("child_process"));
+const commander_1 = __importDefault(require("commander"));
+let chalk = require('chalk');
 commander_1.default
     .option('--json', 'get json output')
     .parse(process.argv);
-var buildmacList = [
+let buildmacList = [
     { hostName: 'buildmac11', hostIp: '10.104.97.48', stats: {} },
     { hostName: 'buildmac13', hostIp: '10.104.97.60', stats: {} },
     { hostName: 'buildmac14', hostIp: '10.104.97.43', stats: {} },
     { hostName: 'buildmac15', hostIp: '10.104.97.59', stats: {} }
 ];
-var hostResults = [];
-var processInfoResponse = chalk.underline('\nHOST\t\t%CPU\t %MEM\tAppium\t\tDisk Free\n\n');
-for (var _i = 0, buildmacList_1 = buildmacList; _i < buildmacList_1.length; _i++) {
-    var host = buildmacList_1[_i];
+let hostResults = [];
+let processInfoResponse = chalk.underline(`\n${padRight('HOST', 15)}${padRight('Appium', 15)}${padRight('%CPU', 10)}${padRight('%MEM', 10)}${padRight('Disk Free', 10)}\n\n`);
+for (let host of buildmacList) {
     // get the 'df' disk free result, grep -v to filter out the header line
-    var driveSpaceResponse = child.execSync("ssh -T buildmac@" + host.hostIp + " \"df -h / | grep -v Filesystem\"").toString().split(/\s+/);
+    let driveSpaceResponse = child.execSync(`ssh -T buildmac@${host.hostIp} "df -h / | grep -v Filesystem"`).toString().split(/\s+/);
     try {
         // get only appium process info, and only cpu, mem and args stats
-        var processInfoResponseRows = child.execSync("ssh -T buildmac@" + host.hostIp + " \"ps ax -o %cpu -o %mem -o args | grep -v grep | grep -E '(appium -p|%CPU)'\"").toString().split('\n');
-        for (var _a = 0, processInfoResponseRows_1 = processInfoResponseRows; _a < processInfoResponseRows_1.length; _a++) {
-            var row = processInfoResponseRows_1[_a];
-            var rowArr = row.split(/\s+/);
+        let processInfoResponseRows = child.execSync(`ssh -T buildmac@${host.hostIp} "ps ax -o %cpu -o %mem -o args | grep -v grep | grep 'appium -p'"`).toString().trim().split('\n');
+        for (let row of processInfoResponseRows) {
+            // get an array of the 'ps' output
+            let rowArr = row.trim().split(/\s+/);
+            // if there's nothing here to parse, move on to the next host
             if (rowArr.length < 2) {
                 break;
             }
             ;
-            var targetOs = 'TargetOS';
+            let targetOs = 'TargetOS';
             if (row.toLowerCase().indexOf('android') >= 0) {
                 targetOs = chalk.green('android');
             }
@@ -50,9 +50,9 @@ for (var _i = 0, buildmacList_1 = buildmacList; _i < buildmacList_1.length; _i++
                 // skip the header row
                 continue;
             }
-            host.stats = { cpu: rowArr[1], mem: rowArr[2], appium: targetOs, diskFree: driveSpaceResponse[3] };
+            host.stats = { cpu: rowArr[0], mem: rowArr[1], appium: targetOs, diskFree: driveSpaceResponse[3] };
             hostResults.push(host);
-            processInfoResponse += host.hostName + "\t%" + host.stats.cpu + "\t%" + host.stats.mem + "\t" + host.stats.appium + "\t\t" + host.stats.diskFree + "\n";
+            processInfoResponse += `${padRight(host.hostName, 15)}${padRight(host.stats.appium, 15)}${padRight(host.stats.cpu + '%', 10)}${padRight(host.stats.mem + '%', 10)}${padRight(host.stats.diskFree, 10)}\n`;
         }
     }
     catch (e) {
@@ -65,5 +65,10 @@ if (commander_1.default.json) {
 }
 else {
     console.log(processInfoResponse);
+}
+function padRight(text, width, pad = ' ') {
+    let paddedString = '';
+    let padding = pad.repeat(width - text.length);
+    return text + padding;
 }
 //# sourceMappingURL=index.js.map

@@ -22,7 +22,7 @@ let buildmacList: Array<Host> = [
 
 let hostResults: Array<Host> = [];
 
-let processInfoResponse: string = chalk.underline('\nHOST\t\t%CPU\t %MEM\tAppium\t\tDisk Free\n\n');
+let processInfoResponse: string = chalk.underline(`\n${padRight('HOST', 15)}${padRight('Appium', 15)}${padRight('%CPU', 10)}${padRight('%MEM', 10)}${padRight('Disk Free', 10)}\n\n`);
 
 for (let host of buildmacList) {
 
@@ -31,10 +31,14 @@ for (let host of buildmacList) {
 
     try {
         // get only appium process info, and only cpu, mem and args stats
-        let processInfoResponseRows = child.execSync(`ssh -T buildmac@${host.hostIp} "ps ax -o %cpu -o %mem -o args | grep -v grep | grep -E '(appium -p|%CPU)'"`).toString().split('\n');
+        let processInfoResponseRows = child.execSync(`ssh -T buildmac@${host.hostIp} "ps ax -o %cpu -o %mem -o args | grep -v grep | grep 'appium -p'"`).toString().trim().split('\n');
         for (let row of processInfoResponseRows) {
-            let rowArr = row.split(/\s+/);
+
+            // get an array of the 'ps' output
+            let rowArr = row.trim().split(/\s+/);
+            // if there's nothing here to parse, move on to the next host
             if (rowArr.length < 2) { break };
+
             let targetOs: string = 'TargetOS';
             if (row.toLowerCase().indexOf('android') >= 0) {
                 targetOs = chalk.green('android');
@@ -44,10 +48,10 @@ for (let host of buildmacList) {
                 // skip the header row
                 continue;
             }
-            host.stats = { cpu: rowArr[1], mem: rowArr[2], appium: targetOs, diskFree: driveSpaceResponse[3] };
+            host.stats = { cpu: rowArr[0], mem: rowArr[1], appium: targetOs, diskFree: driveSpaceResponse[3] };
             hostResults.push(host);
 
-            processInfoResponse += `${host.hostName}\t%${host.stats.cpu}\t%${host.stats.mem}\t${host.stats.appium}\t\t${host.stats.diskFree}\n`;
+            processInfoResponse += `${padRight(host.hostName, 15)}${padRight(host.stats.appium, 15)}${padRight(host.stats.cpu + '%', 10)}${padRight(host.stats.mem + '%', 10)}${padRight(host.stats.diskFree, 10)}\n`;
         }
     } catch (e) {
         console.log(e.message);
@@ -60,4 +64,10 @@ if (commander.json) {
     console.log(JSON.stringify(hostResults));
 } else {
     console.log(processInfoResponse);
+}
+
+function padRight(text: string, width: number, pad: string = ' '): string {
+    let paddedString = '';
+    let padding = pad.repeat(width - text.length);
+    return text + padding;
 }
