@@ -8,6 +8,7 @@ commander
     .option('--json', 'get json output')
     .parse(process.argv);
 
+
 // define the host objects
 interface Host {
     hostName: string,
@@ -28,11 +29,11 @@ let hostResults: Array<Host> = [];
 
 let processInfoResponse: string = chalk.underline(`\n${padRight('HOST', 15)}${padRight('Appium', 15)}${padRight('%CPU', 10)}${padRight('%MEM', 10)}${padRight('Disk Free', 10)}\n\n`);
 
-for (let host of buildmacList) {
+console.log('Checking Hosts...');
 
+for (let host of buildmacList) {
     // get the 'df' disk free result, grep -v to filter out the header line
     let driveSpaceResponse = child.execSync(`ssh -T buildmac@${host.hostIp} "df -h / | grep -v Filesystem"`).toString().split(/\s+/);
-
     try {
         // get only appium process info, and only cpu, mem and args stats
         let processInfoResponseRows = child.execSync(`ssh -T buildmac@${host.hostIp} "ps ax -o %cpu -o %mem -o args | grep -v grep | grep 'appium -p'"`).toString().trim().split('\n');
@@ -60,6 +61,7 @@ for (let host of buildmacList) {
             hostResults.push(host);
 
             processInfoResponse += `${padRight(host.hostName, 15)}${targetOsColor}${padRight(host.stats.cpu + '%', 10)}${padRight(host.stats.mem + '%', 10)}${padRight(host.stats.diskFree, 10)}\n`;
+
         }
     } catch (e) {
         console.log(e.message);
