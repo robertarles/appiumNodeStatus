@@ -38,7 +38,10 @@ for (let host of buildmacList) {
     let driveSpaceResponse = child.execSync(`ssh -T buildmac@${host.hostIp} "df -h / | grep -v Filesystem"`).toString().split(/\s+/);
     try {
         // get only appium process info, and only cpu, mem and args stats
-        let processInfoResponseRows = child.execSync(`ssh -T buildmac@${host.hostIp} "ps ax -o %cpu -o %mem -o args | grep -v grep | grep 'appium -p'"`).toString().trim().split('\n');
+        let processInfoResponseRows: Array<string> = child.execSync(`ssh -T buildmac@${host.hostIp} "ps ax -o %cpu -o %mem -o args | grep -v grep | grep 'appium -p'"`).toString().trim().split('\n');
+        let androidProcessInfoResponse: string = '';
+        let iosProcessInfoResponse: string = '';
+
         for (let row of processInfoResponseRows) {
 
             // get an array of the 'ps' output
@@ -62,9 +65,14 @@ for (let host of buildmacList) {
             host.stats = { cpu: rowArr[0], mem: rowArr[1], appium: targetOs, diskFree: driveSpaceResponse[3] };
             hostResults.push(host);
 
-            processInfoResponse += `${padRight(host.hostName, 15)}${targetOsColor}${padRight(host.stats.cpu + '%', 10)}${padRight(host.stats.mem + '%', 10)}${padRight(host.stats.diskFree, 10)}\n`;
-
+            if (host.stats.appium.toLowerCase() === 'android') {
+                androidProcessInfoResponse += `${padRight(host.hostName, 15)}${targetOsColor}${padRight(host.stats.cpu + '%', 10)}${padRight(host.stats.mem + '%', 10)}${padRight(host.stats.diskFree, 10)}\n`;
+            } else {
+                iosProcessInfoResponse += `${padRight(host.hostName, 15)}${targetOsColor}${padRight(host.stats.cpu + '%', 10)}${padRight(host.stats.mem + '%', 10)}${padRight(host.stats.diskFree, 10)}\n`;
+            }
         }
+        processInfoResponse += androidProcessInfoResponse;
+        processInfoResponse += iosProcessInfoResponse;
     } catch (e) {
         console.log(e.message);
     }
