@@ -2,6 +2,7 @@
 import * as child from 'child_process';
 import commander from 'commander';
 import chalk from 'chalk';
+import moment from 'moment';
 
 // command line options
 commander
@@ -30,6 +31,7 @@ let hostResults: Array<Host> = [];
 let processInfoResponse: string = chalk.underline(`\n${padRight('HOST', 15)}${padRight('Appium', 15)}${padRight('%CPU', 10)}${padRight('%MEM', 10)}${padRight('Disk Free', 10)}\n\n`);
 
 if (!commander.json) {
+    console.log(`Time of this run: ${moment()}`);
     console.log('Checking Hosts...');
 }
 

@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "chalk": "^2.4.1",
-    "commander": "^2.18.0"
+    "commander": "^2.18.0",
+    "moment": "^2.22.2"
   }
 }

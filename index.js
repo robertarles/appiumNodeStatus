@@ -14,6 +14,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const child = __importStar(require("child_process"));
 const commander_1 = __importDefault(require("commander"));
 const chalk_1 = __importDefault(require("chalk"));
+const moment_1 = __importDefault(require("moment"));
 // command line options
 commander_1.default
     .option('--json', 'get json output')
@@ -29,6 +30,7 @@ let buildmacList = [
 let hostResults = [];
 let processInfoResponse = chalk_1.default.underline(`\n${padRight('HOST', 15)}${padRight('Appium', 15)}${padRight('%CPU', 10)}${padRight('%MEM', 10)}${padRight('Disk Free', 10)}\n\n`);
 if (!commander_1.default.json) {
+    console.log(`Time of this run: ${moment_1.default()}`);
     console.log('Checking Hosts...');
 }
 for (let host of buildmacList) {
